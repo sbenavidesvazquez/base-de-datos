@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -20,21 +21,22 @@ import javax.swing.table.DefaultTableModel;
 public class Inicio extends javax.swing.JFrame {
 
     Primeraclase bd = new Primeraclase();
-
+    Connection con = null;
+    Statement st;
     static ResultSet rs = null;
     DefaultTableModel tab;
 
     /**
      * Creates new form Inicio
      */
-    public Inicio() {
-        initComponents();
-        tab=new DefaultTableModel();
-        tab.addColumn("ID");
-        tab.addColumn("Nombre");
-        tab.addColumn("Apellido");
-        this.jtLista.setModel(tab);
-        
+    public Inicio() {        
+            initComponents();
+           
+            tab=new DefaultTableModel();
+            this.jtLista.setModel(tab);
+            tab.addColumn("ID");
+            tab.addColumn("Nombre");
+            tab.addColumn("Apellido");        
     }
 
     /**
@@ -57,6 +59,8 @@ public class Inicio extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jtLista = new javax.swing.JTable();
         jbVer = new javax.swing.JButton();
+        jbBorrar = new javax.swing.JButton();
+        jbModificar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -94,13 +98,35 @@ public class Inicio extends javax.swing.JFrame {
             new String [] {
                 "ID", "Nombre", "Apellido"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jtLista);
 
         jbVer.setText("Visualizar");
         jbVer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jbVerActionPerformed(evt);
+            }
+        });
+
+        jbBorrar.setText("Borrar");
+        jbBorrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbBorrarActionPerformed(evt);
+            }
+        });
+
+        jbModificar.setText("Modificar");
+        jbModificar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbModificarActionPerformed(evt);
             }
         });
 
@@ -123,11 +149,18 @@ public class Inicio extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 386, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(51, Short.MAX_VALUE))
             .addGroup(jpMarcoLayout.createSequentialGroup()
-                .addGap(45, 45, 45)
-                .addComponent(jbInsertar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jbVer)
-                .addGap(179, 179, 179))
+                .addGap(42, 42, 42)
+                .addGroup(jpMarcoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jpMarcoLayout.createSequentialGroup()
+                        .addComponent(jbModificar)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jpMarcoLayout.createSequentialGroup()
+                        .addGroup(jpMarcoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jbBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbInsertar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jbVer)
+                        .addGap(179, 179, 179))))
         );
         jpMarcoLayout.setVerticalGroup(
             jpMarcoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -153,7 +186,11 @@ public class Inicio extends javax.swing.JFrame {
                     .addGroup(jpMarcoLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(98, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jbBorrar)
+                .addGap(21, 21, 21)
+                .addComponent(jbModificar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -175,22 +212,26 @@ public class Inicio extends javax.swing.JFrame {
         try {
             Connection con = null;
             Statement st;
-            int id;
+            int id = 0;
             String nome;
             String apellido;
             
             con = bd.conectar();
 
-            id = Integer.parseInt(jtId.getText());
-            System.out.println(id);
+            
+            id = Integer.parseInt(jtId.getText());            
             nome = jtNombre.getText();
             apellido = jtApellido.getText();
 
             st = con.createStatement();
             st.executeUpdate("insert into APP.ALUMNOS values(" + id + ",'" + nome + "','" + apellido + "')");
             System.out.println("Insercion realizada");
+            jtId.setText(null);
+            jtNombre.setText(null);
+            jtApellido.setText(null);
+            
             con.close();
-
+            jbVer.setSelected(true);
         } catch (SQLException ex) {
             Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -201,6 +242,7 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_jtIdActionPerformed
 
     private void jbVerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbVerActionPerformed
+        
         try {
             Connection con = null;
             Statement st;
@@ -209,17 +251,39 @@ public class Inicio extends javax.swing.JFrame {
             
             st=con.createStatement();
             rs=st.executeQuery("select * from app.alumnos");
+            
+            
             while(rs.next()){
+                
                 dat[0]=Integer.toString(rs.getInt("id"));
                 dat[1]=rs.getString("nombre");
                 dat[2]=rs.getString("apellido");
-                tab.addRow(dat);
-                
+                tab.addRow(dat);                
             }
         } catch (SQLException ex) {
             Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jbVerActionPerformed
+
+    private void jbBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbBorrarActionPerformed
+        try {
+            
+            Connection con = null;
+            Statement st;
+            con=bd.conectar();
+            st=con.createStatement();            
+            bd.borrar();
+        } catch (SQLException ex) {
+            Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jbBorrarActionPerformed
+
+    private void jbModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbModificarActionPerformed
+        Connection con = null;
+            Statement st;
+            con=bd.conectar();
+            bd.Modificar();
+    }//GEN-LAST:event_jbModificarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -258,7 +322,9 @@ public class Inicio extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton jbBorrar;
     private javax.swing.JButton jbInsertar;
+    private javax.swing.JButton jbModificar;
     private javax.swing.JButton jbVer;
     private javax.swing.JLabel jlApellido;
     private javax.swing.JLabel jlIde;

@@ -72,7 +72,7 @@ public class Primeraclase {
     public void borrar(){
         try {
             s = con.createStatement();
-            int id=Integer.parseInt(JOptionPane.showInputDialog("ID"));
+            int id=Integer.parseInt(JOptionPane.showInputDialog("ID del alumno que va a borrar"));
             s.execute("delete from app.alumnos where id="+id);
             
         } catch (Exception e) {
