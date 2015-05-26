@@ -242,6 +242,11 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_jtIdActionPerformed
 
     private void jbVerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbVerActionPerformed
+        for(int i=0;i<tab.getColumnCount();i++){            
+            for(int j=0;j<tab.getRowCount();j++){
+                tab.removeRow(j);
+            }            
+        }
         
         try {
             Connection con = null;
@@ -266,6 +271,7 @@ public class Inicio extends javax.swing.JFrame {
     }//GEN-LAST:event_jbVerActionPerformed
 
     private void jbBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbBorrarActionPerformed
+               
         try {
             
             Connection con = null;
